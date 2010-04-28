@@ -73,6 +73,9 @@ module GData4Ruby
     
     #If set to true, debug will dump all raw HTTP requests and responses
     attr_accessor :debug
+    
+    #The GData version used by the service
+    attr_accessor :gdata_version
 
     #Optionally, pass a hash of attributes to populate the class.  If you want to use a GData version
     #other than the default (2.1), pass a key/value pair, i.e. {:gdata_version => '1.0'}      
