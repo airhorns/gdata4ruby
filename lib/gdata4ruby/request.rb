@@ -49,8 +49,8 @@ module GData4Ruby
     
     #A hash of additional query parameters (i.e. {'param' => 'value') to append to the request url
     def parameters=(query_parameters) 
-      raise ArgumentError, 'Query parameters must be a Hash' if query_parameters and not query_parameters.is_a? Hash
-      @parameters = "?#{query_parameters.to_a.collect{|a| a.join("=")}.join("&")}" if query_parameters
+      raise ArgumentError, 'Query parameters must be a Hash' if query_parameters != nil and not query_parameters.is_a? Hash
+      @parameters = query_parameters.is_a?(Hash) ? "?#{query_parameters.to_a.collect{|a| a.join("=")}.join("&")}" : nil
     end
     
     #The HTTP url to send the request to

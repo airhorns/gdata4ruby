@@ -85,10 +85,10 @@ module GData4Ruby
       
       #Finds an AccessRule based on the args passed.  
       #
-      #Params can be a hash containing either:
+      #Args can be a hash containing either:
       #*user*:: an email address/user id to search for.  If found, returns the matching AccessRule object.
       #*role*:: the role to search for.  Returns an array of matching AccessRules, or an empty array if no matches are found.
-      def self.find(service, parent, params = {})
+      def self.find(service, parent, args = {})
         raise ArgumentError, 'Must supply a username or role to find by' if not args[:user] and not args[:role]
         rules = []
         ret = service.send_request(GData4Ruby::Request.new(:get, parent.acl_uri))

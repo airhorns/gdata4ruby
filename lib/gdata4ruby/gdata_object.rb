@@ -17,6 +17,7 @@
 #++
 
 require 'gdata4ruby/service'
+require 'time'
 
 module GData4Ruby
   #The GDataObject class represents any <entry> object returned by a Google Service.  Includes
@@ -28,6 +29,18 @@ module GData4Ruby
     
     #The entry title.
     attr_accessor :title
+    
+    #The raw date the document was published
+    attr_reader :published
+    
+    #The raw date the document was last updated
+    attr_reader :updated
+    
+    #The author/owner name
+    attr_reader :author_name
+    
+    #The author/owner email
+    attr_reader :author_email
     
     #The current instance etag for the entry
     attr_reader :etag
@@ -54,6 +67,12 @@ module GData4Ruby
     #The feedLink that represents the entry's ACL feed.
     attr_reader :acl_uri
     
+    #The content uri for exporting the object content
+    attr_reader :content_uri
+    
+    #The kind (type) of the object
+    attr_reader :kind
+    
     #Indicates whether the object exists on the Google servers, i.e. has been created/saved.
     def exists?
       return @exists
@@ -66,7 +85,7 @@ module GData4Ruby
       @xml ||= ''
       @service ||= service
       @exists = false
-      @title = @etag = @acl_uri = @edit_uri = @parent_uri = @feed_uri = nil
+      @title = @content_uri = @etag = @acl_uri = @edit_uri = @parent_uri = @feed_uri = @kind = nil
       @categories = @feed_links = []
       @include_etag = true
       attributes.each do |key, value|
@@ -87,6 +106,8 @@ module GData4Ruby
           when "id"
             puts 'setting id' if service.debug
             @feed_uri = ele.text
+          when 'content'
+            @content_uri = ele.attributes['src'] if ele.attributes['src']
           when 'resourceId'
             @id = ele.text
           when 'title'
@@ -95,16 +116,32 @@ module GData4Ruby
             @categories << {:label => ele.attributes['label'], 
                             :scheme => ele.attributes['scheme'],
                             :term => ele.attributes['term']}
+            if ele.attributes['scheme'] and ele.attributes['scheme'] == 'http://schemas.google.com/g/2005#kind'
+              @kind = if ele.attributes['label'] 
+                ele.attributes['label'] 
+              else
+                ele.attributes['term']
+              end
+            end
           when 'link'
             case ele.attributes['rel']
               when 'http://schemas.google.com/docs/2007#parent'
                 @parent_uri = ele.attributes['href']
               when 'edit'
                 @edit_uri = ele.attributes['href']
+              when 'http://schemas.google.com/acl/2007#accessControlList'
+                @acl_uri = ele.attributes['href'] if not @acl_uri
             end
           when 'feedLink'
             @feed_links << {:rel => ele.attributes['rel'], :href => ele.attributes['href']}
-            @acl_uri = ele.attributes['href'] if ele.attributes['rel'].include? 'accessControlList'
+            @acl_uri = ele.attributes['href'] if ele.attributes['rel'].include? 'accessControlList' and not @acl_uri
+          when 'author'
+            ele.elements.each('name'){}.map {|e| @author_name = e.text}
+            ele.elements.each('email'){}.map {|e| @author_email = e.text}
+          when 'published'
+            @published = Time.parse(ele.text)
+          when 'updated'
+            @updated = Time.parse(ele.text)
         end
       end
       return xml.root
@@ -133,7 +170,7 @@ module GData4Ruby
     #Deletes the object.
     def delete
       if @exists
-        service.send_request(Request.new(:delete, @feed_uri, nil, {"If-Match" => "*"}))
+        service.send_request(Request.new(:delete, @edit_uri, nil, {"If-Match" => "*"}))
       end
       @exists = false
       return true

@@ -18,8 +18,11 @@
 
 require "net/http"
 require "net/https"
+require 'time'
+require 'cgi'
 require 'gdata4ruby/request'
 require 'gdata4ruby/utils/utils'
+require 'rexml/document'
 
 Net::HTTP.version_1_2
 
@@ -112,8 +115,10 @@ module GData4Ruby
       end
       
       while ret.is_a?(Net::HTTPRedirection)
-        puts "Redirect received, resending post" if @debug
+        puts "Redirect received, resending request" if @debug
+        request.parameters = nil
         request.url = ret['location']
+        puts "sending #{request.type} to url = #{request.url.to_s}" if @debug
         ret = do_request(request)
       end
       if not ret.is_a?(Net::HTTPSuccess)
