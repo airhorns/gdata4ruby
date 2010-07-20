@@ -77,7 +77,8 @@ module GData4Ruby
       #Deletes the AccessRule
       def delete
         if @exists
-          service.send_request(Request.new(:delete, @parent.acl_uri+"/user:"+@user, nil, {"If-Match" => "*"}))
+          @role = 'none'
+          service.send_request(Request.new(:put, @edit_uri, self.to_xml, {"If-Match" => "*", 'Content-Type' => 'application/atom+xml'}))
         end
         @exists = false
         return true
@@ -111,7 +112,7 @@ module GData4Ruby
           when "role"
             ele.attributes['value'] = @role           
           when 'scope'
-            if @user
+            if @user and @user != 'default'
               ele.attributes['value'] = @user 
             else
               ele.attributes['type'] = 'default'

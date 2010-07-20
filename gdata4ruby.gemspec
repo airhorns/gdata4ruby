@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
    s.name = %q{gdata4ruby}
-   s.version = "0.1.1"
+   s.version = "0.1.2"
    s.date = %q{2010-05-02}
    s.authors = ["Mike Reich"]
    s.email = %q{mike@seabourneconsulting.com}
