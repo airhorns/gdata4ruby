@@ -1,12 +1,13 @@
 #!/usr/bin/ruby
-
+$LOAD_PATH.unshift(File.join(File.dirname(__FILE__), '..', 'lib'))
+$LOAD_PATH.unshift(File.dirname(__FILE__))
 require 'rubygems'
 require 'gdata4ruby'
 include GData4Ruby
 
 @service = Service.new
-@username = nil
-@password = nil
+@username = 'harry.brundage@gmail.com'
+@password = 'idargullygul24425477'
 
 def tester
   if ARGV.include?("-d")
