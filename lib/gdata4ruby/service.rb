@@ -43,7 +43,9 @@ module GData4Ruby
       ret = nil
       ret = send_request(Request.new(:post, AUTH_URL, "Email=#{username}&Passwd=#{password}&source=GCal4Ruby&service=#{service}&accountType=HOSTED_OR_GOOGLE"))
       if ret.class == Net::HTTPOK
-        @auth_token = ret.read_body.to_a[2].gsub("Auth=", "").strip
+        body = ret.read_body 
+        lines = body.send(body.respond_to? (:lines) ? :lines : :to_s).to_a 
+        @auth_token = lines.to_a[2].gsub("Auth=", "").strip
         @account = username
         @password = password
         return true
